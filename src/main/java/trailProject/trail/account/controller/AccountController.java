@@ -37,4 +37,5 @@ public class AccountController {
     public Result<List<Account>> allUsers(){
         return Result.res(StatusEnum.OK, "회원이 조회됐습니다.", "success", this.accountService.findAll());
     }
+
 }

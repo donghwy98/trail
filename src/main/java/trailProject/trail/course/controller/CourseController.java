@@ -30,9 +30,4 @@ public class CourseController {
         return courseDetail;
     }
 
-//    @PostMapping("/courseFinish")
-//    public void courseFinish(Account account, Course course) {
-//        account.saveCourse(course);
-//    }
-
 }
