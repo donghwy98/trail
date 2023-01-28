@@ -1,61 +1,45 @@
 package trailProject.trail.security.token;
 
-import lombok.Getter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.Assert;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import trailProject.trail.account.entity.Account;
 
-import java.util.Collection;
+import java.util.Date;
+@Component
+public class JwtProperties {
 
-@Getter
-public class JwtUsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
+    @Value("${jwt.secret}")
+    private String secret;
+    public static final String TOKEN_PREFIX = "Bearer ";
+    public static final String HEADER_STRING = "Authorization";
 
-    private final Object principal; //id (id)
-    private Object credentials; //카카오 이름 (패스워드)
-
-    private Account account;
-
-    /**
-     *인증 전 객체.
-     */
-    public JwtUsernamePasswordAuthenticationToken(Object principal, Object credentials) {
-        super(null);
-        this.principal = principal;
-        this.credentials = credentials;
-        super.setAuthenticated(false);
+    //액세스 토큰 발급
+    public String createAccessToken(String account){
+        Algorithm algorithm = Algorithm.HMAC256(secret.getBytes());
+        String accessToken = JWT.create()
+                .withSubject(account)
+                .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 9999))
+                .sign(algorithm);
+        return accessToken;
     }
 
-    /**
-     * 인증 후 객체
-     * */
-    public JwtUsernamePasswordAuthenticationToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities) {
-        super(authorities);
-        this.principal = principal;
-        this.credentials = credentials; //비밀번호는 보안을 위해 null로 사용.
-        super.setAuthenticated(true);
+    //리프레시 토큰 발급
+    public String createRefreshToken(String account) {
+        Algorithm algorithm = Algorithm.HMAC256(secret.getBytes());
+        String refreshToken = JWT.create()
+                .withSubject(account)
+                .withExpiresAt(new Date(System.currentTimeMillis() + + 100000 * 60 * 60 * 1000))
+                .sign(algorithm);
+        return refreshToken;
     }
 
-    @Override
-    public Object getCredentials() {
-        return this.credentials;
-    }
-
-    @Override
-    public Object getPrincipal() {
-        return this.principal;
-    }
-
-    @Override
-    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-        Assert.isTrue(!isAuthenticated,
-                "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead");
-        super.setAuthenticated(false);
-    }
-
-    @Override
-    public void eraseCredentials() {
-        super.eraseCredentials();
-        this.credentials = null;
+    public JWTVerifier verifierToken(){
+        Algorithm algorithm = Algorithm.HMAC256(secret.getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        return verifier;
     }
 }
