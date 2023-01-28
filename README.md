@@ -12,7 +12,7 @@
 ## GitHub Repository
 [**Front-end**](https://github.com/greeneryjin/trail-react-front)
 
-[**Back-end**](https://github.com/greeneryjin/backend-trai)
+[**Back-end**](https://github.com/donghwy98/trail)
 
 ## 사용기술 및 도구
 * spring
